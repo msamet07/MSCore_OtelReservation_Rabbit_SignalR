@@ -1,4 +1,5 @@
-﻿using RabbitMQ.Client;
+﻿using Microsoft.Extensions.Configuration;
+using RabbitMQ.Client;
 using System.Text;
 
 namespace Infrastructure.Messaging
@@ -12,9 +13,14 @@ namespace Infrastructure.Messaging
     {
         private readonly ConnectionFactory _factory;
 
-        public MessageService()
+        public MessageService(IConfiguration configuration)
         {
-            _factory = new ConnectionFactory() { HostName = "localhost" };
+            _factory = new ConnectionFactory()
+            {
+                HostName = configuration["RabbitMQ:HostName"],
+                UserName = configuration["RabbitMQ:UserName"],
+                Password = configuration["RabbitMQ:Password"]
+            };
         }
 
         public void SendMessage(string message)

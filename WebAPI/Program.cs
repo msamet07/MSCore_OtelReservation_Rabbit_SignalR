@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Application.Services;
 using Core.Interfaces;
 using Infrastructure.Messaging;
+using Infrastructure.Email;
 using Microsoft.OpenApi.Models;
 using WebAPI.Hubs;
 
@@ -21,6 +22,18 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
 });
 
+// Add CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -28,6 +41,7 @@ builder.Services.AddSignalR();
 builder.Services.AddSingleton<IMessageService, MessageService>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<ReservationService>();
+builder.Services.AddSingleton<IEmailService, EmailService>();
 
 var app = builder.Build();
 
@@ -40,6 +54,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseRouting();
+
+// Use CORS policy
+app.UseCors("AllowAllOrigins");
 
 app.UseAuthorization();
 

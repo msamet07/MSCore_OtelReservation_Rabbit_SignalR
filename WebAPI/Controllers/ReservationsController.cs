@@ -1,7 +1,8 @@
-﻿
-using Application.Services;
+﻿using Application.Services;
 using Core.Entities;
+using Core.Interfaces;
 using Infrastructure.Messaging;
+using Infrastructure.Email;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Generic;
@@ -17,12 +18,16 @@ namespace WebAPI.Controllers
         private readonly ReservationService _service;
         private readonly IHubContext<ReservationHub> _hubContext;
         private readonly IMessageService _messageService;
+        private readonly IEmailService _emailService;
+        private readonly IReservationRepository _reservationRepository;
 
-        public ReservationsController(ReservationService service, IHubContext<ReservationHub> hubContext, IMessageService messageService)
+        public ReservationsController(ReservationService service, IHubContext<ReservationHub> hubContext, IMessageService messageService, IEmailService emailService, IReservationRepository reservationRepository)
         {
             _service = service;
             _hubContext = hubContext;
             _messageService = messageService;
+            _emailService = emailService;
+            _reservationRepository = reservationRepository;
         }
 
         [HttpGet]
@@ -54,6 +59,9 @@ namespace WebAPI.Controllers
             // SignalR ile gerçek zamanlı bildirim gönderme
             await _hubContext.Clients.All.SendAsync("ReceiveMessage", $"New reservation created: {reservation.GuestName}, Room: {reservation.RoomNumber}");
 
+            // E-posta gönderme
+            await _emailService.SendEmailAsync("recipient@example.com", "New Reservation", $"A new reservation has been created for {reservation.GuestName} in room {reservation.RoomNumber}.");
+
             return CreatedAtAction(nameof(GetReservation), new { id = reservation.Id }, reservation);
         }
 
@@ -77,4 +85,3 @@ namespace WebAPI.Controllers
         }
     }
 }
-
