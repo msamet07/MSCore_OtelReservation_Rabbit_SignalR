@@ -1,26 +1,27 @@
-﻿using Application.Services;
-using Core.Entities;
-using Core.Interfaces;
-using Infrastructure.Messaging;
-using Infrastructure.Email;
+﻿using Application.Services; 
+using Core.Entities; 
+using Core.Interfaces; 
+using Infrastructure.Messaging; 
+using Infrastructure.Email; 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR; 
+using System.Collections.Generic; 
 using WebAPI.Hubs;
+using System.Threading.Tasks;
 
-namespace WebAPI.Controllers
+namespace WebAPI.Controllers 
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ReservationsController : ControllerBase
+    [Route("api/[controller]")] // API rotası
+    [ApiController] // API kontrolcüsü 
+    public class ReservationsController : ControllerBase // MVC kontrolcüsü sınıfı.
     {
-        private readonly ReservationService _service;
-        private readonly IHubContext<ReservationHub> _hubContext;
-        private readonly IMessageService _messageService;
-        private readonly IEmailService _emailService;
-        private readonly IReservationRepository _reservationRepository;
+        private readonly ReservationService _service; // Rezervasyon servisi.
+        private readonly IHubContext<ReservationHub> _hubContext; // SignalR hub'ı.
+        private readonly IMessageService _messageService; // Mesajlaşma servisi.
+        private readonly IEmailService _emailService; // E-posta servisi.
+        private readonly IReservationRepository _reservationRepository; // Rezervasyon repository'si.
 
+        // Constructor
         public ReservationsController(ReservationService service, IHubContext<ReservationHub> hubContext, IMessageService messageService, IEmailService emailService, IReservationRepository reservationRepository)
         {
             _service = service;
@@ -30,12 +31,14 @@ namespace WebAPI.Controllers
             _reservationRepository = reservationRepository;
         }
 
+        // GET: api/reservations
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Reservation>>> GetReservations()
         {
             return Ok(await _service.GetAllReservationsAsync());
         }
 
+        // GET: api/reservations/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Reservation>> GetReservation(int id)
         {
@@ -48,6 +51,7 @@ namespace WebAPI.Controllers
             return Ok(reservation);
         }
 
+        // POST: api/reservations
         [HttpPost]
         public async Task<ActionResult> PostReservation(Reservation reservation)
         {
@@ -65,6 +69,7 @@ namespace WebAPI.Controllers
             return CreatedAtAction(nameof(GetReservation), new { id = reservation.Id }, reservation);
         }
 
+        // PUT: api/reservations/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutReservation(int id, Reservation reservation)
         {
@@ -77,6 +82,7 @@ namespace WebAPI.Controllers
             return NoContent();
         }
 
+        // DELETE: api/reservations/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteReservation(int id)
         {

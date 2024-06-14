@@ -14,7 +14,7 @@ using WebAPI.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -22,7 +22,7 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
 });
 
-// Add CORS policy
+// CORS hatasý almamak için ayar.
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins",
@@ -34,9 +34,11 @@ builder.Services.AddCors(options =>
         });
 });
 
+// DbContext'i yapýlandýrma ayarý
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// diðer servislerin eklenmesi.
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IMessageService, MessageService>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
@@ -45,7 +47,7 @@ builder.Services.AddSingleton<IEmailService, EmailService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// HTTP istek piplený
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -57,7 +59,7 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
-// Use CORS policy
+
 app.UseCors("AllowAllOrigins");
 
 app.UseAuthorization();
