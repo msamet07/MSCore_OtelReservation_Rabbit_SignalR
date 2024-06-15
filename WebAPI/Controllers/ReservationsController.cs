@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using WebAPI.Hubs;
+using Core.Hubs;
+
 
 namespace WebAPI.Controllers
 {
@@ -15,16 +16,14 @@ namespace WebAPI.Controllers
     [ApiController]
     public class ReservationsController : ControllerBase
     {
-        private readonly ReservationService _service;
-        private readonly IHubContext<ReservationHub> _hubContext;
+        private readonly IReservationService _service;
         private readonly IMessageService _messageService;
         private readonly IEmailService _emailService;
         private readonly IReservationRepository _reservationRepository;
 
-        public ReservationsController(ReservationService service, IHubContext<ReservationHub> hubContext, IMessageService messageService, IEmailService emailService, IReservationRepository reservationRepository)
+        public ReservationsController(IReservationService service, IMessageService messageService, IEmailService emailService, IReservationRepository reservationRepository)
         {
             _service = service;
-            _hubContext = hubContext;
             _messageService = messageService;
             _emailService = emailService;
             _reservationRepository = reservationRepository;
@@ -55,9 +54,6 @@ namespace WebAPI.Controllers
 
             // RabbitMQ'ya mesaj gönderme
             _messageService.SendMessage($"New reservation created: {reservation.GuestName}, Room: {reservation.RoomNumber}");
-
-            // SignalR ile gerçek zamanlı bildirim gönderme
-            await _hubContext.Clients.All.SendAsync("ReceiveMessage", $"New reservation created: {reservation.GuestName}, Room: {reservation.RoomNumber}");
 
             // E-posta gönderme
             await _emailService.SendEmailAsync("recipient@example.com", "New Reservation", $"A new reservation has been created for {reservation.GuestName} in room {reservation.RoomNumber}.");

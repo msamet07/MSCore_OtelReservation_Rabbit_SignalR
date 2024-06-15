@@ -10,7 +10,7 @@ using Core.Interfaces;
 using Infrastructure.Messaging;
 using Infrastructure.Email;
 using Microsoft.OpenApi.Models;
-using WebAPI.Hubs;
+using Core.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,7 +40,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IMessageService, MessageService>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
-builder.Services.AddScoped<ReservationService>();
+builder.Services.AddScoped<IReservationService,ReservationService>();
 builder.Services.AddSingleton<IEmailService, EmailService>();
 
 var app = builder.Build();

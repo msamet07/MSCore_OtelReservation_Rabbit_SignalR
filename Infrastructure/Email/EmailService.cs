@@ -2,9 +2,9 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 
 namespace Infrastructure.Email
 {
@@ -56,7 +56,7 @@ namespace Infrastructure.Email
                 }
             };
 
-            var content = new StringContent(JsonConvert.SerializeObject(email), Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonSerializer.Serialize(email), Encoding.UTF8, "application/json");
             var byteArray = Encoding.ASCII.GetBytes($"{apiKey}:{secretKey}");
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
 
